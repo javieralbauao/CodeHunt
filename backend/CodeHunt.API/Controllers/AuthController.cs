@@ -16,9 +16,11 @@ namespace CodeHunt.API.Controllers
             _auth = auth;
         }
 
+        // POST: api/auth/login
         [HttpPost("login")]
         public IActionResult Login([FromBody] LoginDTO dto)
         {
+            // Simulación de validación de usuario (luego lo conectas a una base de datos)
             if (dto.Username == "admin" && dto.Password == "1234")
             {
                 var token = _auth.GenerateToken(dto.Username);
@@ -28,6 +30,7 @@ namespace CodeHunt.API.Controllers
             return Unauthorized("Credenciales inválidas");
         }
 
+        // GET: api/auth/test
         [HttpGet("test")]
         [Authorize]
         public IActionResult TestJWT()

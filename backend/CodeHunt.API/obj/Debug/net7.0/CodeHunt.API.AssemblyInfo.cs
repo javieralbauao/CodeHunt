@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("CodeHunt.API")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+ad8029f37ac2273e86daf4eb6c5c8038098c66e7")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+5e3100a0fb4e2831c59be97adae03f31609486cf")]
 [assembly: System.Reflection.AssemblyProductAttribute("CodeHunt.API")]
 [assembly: System.Reflection.AssemblyTitleAttribute("CodeHunt.API")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

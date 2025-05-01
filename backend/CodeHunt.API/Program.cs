@@ -4,15 +4,15 @@ using Microsoft.EntityFrameworkCore;
 using System.Text;
 using CodeHunt.API.Data;
 using CodeHunt.API.Services;
+using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Clave y configuración JWT
+
 var key = builder.Configuration["Jwt:Key"];
 var issuer = builder.Configuration["Jwt:Issuer"];
 var audience = builder.Configuration["Jwt:Audience"];
 
-// ✅ Configuración de autenticación JWT (solo una vez)
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -28,13 +28,12 @@ builder.Services.AddAuthentication(options =>
         ValidateIssuerSigningKey = true,
         ValidIssuer = issuer,
         ValidAudience = audience,
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key))
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key ?? ""))
     };
 });
 
 builder.Services.AddAuthorization();
 
-// ✅ Configuración de CORS para permitir peticiones desde React
 builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(policy =>
@@ -55,22 +54,52 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 builder.Services.AddControllers();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "CodeHunt.API", Version = "v1" });
+
+    // 🔐 Configuración del esquema Bearer
+    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Description = "JWT Authorization header usando el esquema Bearer.\n\nEjemplo: 'Bearer {token}'",
+        Name = "Authorization",
+        In = ParameterLocation.Header,
+        Type = SecuritySchemeType.ApiKey,
+        Scheme = "Bearer"
+    });
+
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            new string[] {}
+        }
+    });
+});
+
 
 var app = builder.Build();
 
-// ✅ Middleware en orden correcto
 app.UseCors();
 
-// ✅ SWAGGER también en producción
 app.UseSwagger();
 app.UseSwaggerUI(c =>
 {
     c.SwaggerEndpoint("/swagger/v1/swagger.json", "CodeHunt API V1");
-    c.RoutePrefix = "swagger"; // Esto asegura que Swagger se acceda en /swagger
+    c.RoutePrefix = "swagger"; 
 });
 
+
+
 app.UseHttpsRedirection();
-app.UseAuthentication(); // Siempre antes de Authorization
+app.UseAuthentication(); 
 app.UseAuthorization();
 
 app.MapControllers();
